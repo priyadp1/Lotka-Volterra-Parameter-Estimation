@@ -82,7 +82,7 @@ javac HamiltonianEstimator.java
 java HamiltonianEstimator
 ```
 
-> Note: expects the data file to be named `hare_lynx.csv` in the working directory.
+> Note: expects the data file to be named `Leigh1968_harelynx.csv` in the working directory.
 
 ## Output Files
 

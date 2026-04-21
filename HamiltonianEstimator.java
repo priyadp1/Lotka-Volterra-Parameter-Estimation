@@ -34,8 +34,7 @@ public class HamiltonianEstimator {
     }
 
     public static void main(String[] args) {
-        String filename = "hare_lynx.csv";
-
+        String filename = "Leigh1968_harelynx.csv";
         List<DataPoint> data = readCSV(filename);
 
         if (data.isEmpty()) {
