@@ -189,8 +189,8 @@ if __name__ == "__main__":
                 imag_parts.append(np.imag(eig))
         ax.scatter(real_parts, imag_parts, s=4, alpha=0.3)
         ax.axvline(0, linestyle='--', color='red')
-        ax.set_xlabel('Re(λ)')
-        ax.set_ylabel('Im(λ)')
+        ax.set_xlabel('Re(lambda)')
+        ax.set_ylabel('Im(lambda)')
         ax.set_title(f'Jacobian Eigenvalues — {label}')
         ax.grid(True)
     plt.tight_layout()
@@ -210,16 +210,16 @@ if __name__ == "__main__":
                 label=f'NLS point ({nls_pt_freq:.3f})')
     plt.axvline(ham_pt_freq, color='darkorange', linestyle='--',
                 label=f'Ham point ({ham_pt_freq:.3f})')
-    plt.xlabel('|Im(λ)| = √(αγ)   [oscillation frequency at equilibrium]')
+    plt.xlabel('|Im(lambda)| = √(alphabeta)   [oscillation frequency at equilibrium]')
     plt.ylabel('Count')
-    plt.title('Distance from Degenerate Centre (Bifurcation Boundary)\nNLS-MCMC vs Hamiltonian-MCMC')
+    plt.title('Distance from Center (Bifurcation Boundary)\nNLS-MCMC vs Hamiltonian-MCMC')
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
     plt.savefig('eigenvalue_comparison.png')
     plt.show()
 
-    print("\n===== Oscillation Frequency |Im(λ)| = sqrt(αγ) =====")
+    print("\n===== Oscillation Frequency |Im(λ)| = sqrt(alphabeta) =====")
     print(f"NLS-MCMC : mean={np.mean(nls_freqs):.4f},  std={np.std(nls_freqs):.4f},  "
           f"95% CI=[{np.percentile(nls_freqs,2.5):.4f}, {np.percentile(nls_freqs,97.5):.4f}]")
     print(f"Ham-MCMC : mean={np.mean(ham_freqs):.4f},  std={np.std(ham_freqs):.4f},  "
@@ -242,4 +242,54 @@ if __name__ == "__main__":
         ax.grid(True)
     plt.tight_layout()
     plt.savefig('equilibrium_distribution.png')
+    plt.show()
+
+    n_draws = 200
+    years = data['year'].values
+
+    fig, axes = plt.subplots(1, 2, figsize=(15, 5))
+    for ax, posterior, label, color in [
+        (axes[0], nls_posterior, 'NLS-MCMC', 'steelblue'),
+        (axes[1], ham_posterior, 'Ham-MCMC', 'darkorange'),
+    ]:
+        idx = np.random.choice(len(posterior), size=n_draws, replace=False)
+        for i in idx:
+            try:
+                xm, ym = solve_model(posterior[i], data)
+                ax.plot(years, xm, color='tab:blue', alpha=0.05, linewidth=0.8)
+                ax.plot(years, ym, color='tab:red', alpha=0.05, linewidth=0.8)
+            except Exception:
+                pass
+        ax.plot(years, data['hare'], 'o-', color='tab:blue', label='Hare (data)', zorder=5)
+        ax.plot(years, data['lynx'], 'o-', color='tab:red', label='Lynx (data)', zorder=5)
+        ax.set_xlabel('Year')
+        ax.set_ylabel('Population (thousands)')
+        ax.set_title(f'Posterior Predictive — {label}')
+        ax.legend()
+        ax.grid(True)
+    plt.tight_layout()
+    plt.savefig('posterior_predictive_timeseries.png')
+    plt.show()
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5))
+    for ax, posterior, label, color in [
+        (axes[0], nls_posterior, 'NLS-MCMC', 'steelblue'),
+        (axes[1], ham_posterior, 'Ham-MCMC', 'darkorange'),
+    ]:
+        idx = np.random.choice(len(posterior), size=n_draws, replace=False)
+        for i in idx:
+            try:
+                xm, ym = solve_model(posterior[i], data)
+                ax.plot(xm, ym, color=color, alpha=0.08, linewidth=0.8)
+            except Exception:
+                pass
+        ax.plot(data['hare'], data['lynx'], 'ko-', linewidth=1.5, markersize=4,
+                label='Data', zorder=5)
+        ax.set_xlabel('Hare Population (thousands)')
+        ax.set_ylabel('Lynx Population (thousands)')
+        ax.set_title(f'Phase Portrait — {label}')
+        ax.legend()
+        ax.grid(True)
+    plt.tight_layout()
+    plt.savefig('posterior_predictive_phase.png')
     plt.show()
